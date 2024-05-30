@@ -1,0 +1,12 @@
+{
+  "name": "auth-microservices",
+  "version": "1.0.0",
+  "description": "auth microservices",
+  "main": "index.js",
+  "author": "Santiago Peña",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.0.2"
+  }
+}
