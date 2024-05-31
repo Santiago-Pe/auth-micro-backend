@@ -1,4 +1,3 @@
-// To Do: Chages require by imports
 const registerServices = require("./services/register");
 const loginServices = require("./services/login");
 const verifyServices = require("./services/verify");
