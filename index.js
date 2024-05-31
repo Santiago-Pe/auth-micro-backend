@@ -1,11 +1,6 @@
-/* ---------- Imports ---------- */
-
-import { verify } from "jsonwebtoken";
-
 // To Do: Chages require by imports
 const registerServices = require("./services/register");
 const loginServices = require("./services/login");
-const verifyServices = require("./services/verify");
 const verifyServices = require("./services/verify");
 const utils = require("./utils/utils");
 /* ---------- Paths ---------- */
