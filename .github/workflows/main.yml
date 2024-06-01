@@ -1,34 +1,58 @@
 name: deploy to lambda
+
+# Trigger the workflow on push events
 on: [push]
+
 jobs:
   deploy_source:
     name: build and deploy lambda
+
+    # Define the node versions to test
     strategy:
       matrix:
         node-version: [20.x]
+
+    # Use the latest Ubuntu runner
     runs-on: ubuntu-latest
+
     steps:
+      # Step 1: Check out the repository
       - uses: actions/checkout@v1
+        # This step checks out the repository so subsequent steps can access the codebase
+
+      # Step 2: Set up Node.js with the specified version
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
+        # This step sets up Node.js based on the version specified in the matrix
+
+      # Step 3: Install dependencies and build the project
       - name: npm install and build
         run: |
           npm ci
           npm run build
         env:
           CI: true
+        # This step installs dependencies using npm ci (clean install) and builds the project using npm run build
+
+      # Step 4: Copy additional files to the dist directory
       - name: Copy additional files to dist
         run: |
           mkdir -p dist
           cp package.json dist/
           cp package-lock.json dist/
           cp -R node_modules dist/
+        # This step ensures that necessary files like package.json, package-lock.json, and node_modules are included in the dist directory
+
+      # Step 5: Zip the contents of the dist directory
       - name: zip
         run: |
           cd dist
           zip -r ../bundle.zip ./*
+        # This step navigates to the dist directory and zips all its contents into a file named bundle.zip in the parent directory
+
+      # Step 6: Deploy the zip file to AWS Lambda
       - name: default deploy
         uses: appleboy/lambda-action@master
         with:
@@ -37,3 +61,5 @@ jobs:
           aws_region: us-east-2
           function_name: login-backend
           zip_file: bundle.zip
+        # This step uses the appleboy/lambda-action to deploy the bundle.zip file to AWS Lambda
+        # It uses AWS credentials stored in GitHub Secrets to authenticate the deployment
