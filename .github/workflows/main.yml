@@ -19,9 +19,16 @@ jobs:
           npm run build
         env:
           CI: true
+      - name: Copy additional files to dist
+        run: |
+          mkdir -p dist
+          cp package.json dist/
+          cp package-lock.json dist/
+          cp -R node_modules dist/
       - name: zip
         run: |
-          zip -r bundle.zip dist/*
+          cd dist
+          zip -r ../bundle.zip ./*
       - name: default deploy
         uses: appleboy/lambda-action@master
         with:
@@ -29,4 +36,4 @@ jobs:
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws_region: us-east-2
           function_name: login-backend
-          zip_file: dist/bundle.zip
+          zip_file: bundle.zip
