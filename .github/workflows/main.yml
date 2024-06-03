@@ -1,7 +1,9 @@
 name: deploy to lambda
 
 # Trigger the workflow on push events
-on: [push]
+on: 
+  push:
+    branches: [main]
 
 jobs:
   deploy_source:

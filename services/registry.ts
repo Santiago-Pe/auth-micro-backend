@@ -67,6 +67,7 @@ export const register = async (userInfo: User): Promise<APIGatewayProxyResult> =
   }
 
   const dynamoUser = await getUser(userName);
+  console.info(dynamoUser?.userName)
   if (dynamoUser && dynamoUser.userName) {
     return buildResponse(401, {
       message: "User name already exists in our database. Please choose a different user name",
