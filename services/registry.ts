@@ -22,20 +22,42 @@ interface User {
   userName: string;
   password: string;
 }
-// Function to get a user from DynamoDB
-async function getUser(userName: string): Promise<AWS.DynamoDB.DocumentClient.AttributeMap | undefined> {
+// Function to get a user by userName from DynamoDB
+async function getUserByUserName(userName: string): Promise<AWS.DynamoDB.DocumentClient.AttributeMap | undefined> {
   const params = {
     TableName: userTable,
-    Key: {
-      userName: userName,
+    IndexName: "userName-index",
+    KeyConditionExpression: "userName = :userName",
+    ExpressionAttributeValues: {
+      ":userName": userName,
     },
   };
 
   try {
-    const response = await dynamodb.get(params).promise();
-    return response.Item;
+    const response = await dynamodb.query(params).promise();
+    return response.Items && response.Items.length > 0 ? response.Items[0] : undefined;
   } catch (error) {
-    console.error("There is an error getting user:", error);
+    console.error("There is an error getting user by userName:", error);
+    return undefined;
+  }
+}
+
+// Function to get a user by email from DynamoDB
+async function getUserByEmail(email: string): Promise<AWS.DynamoDB.DocumentClient.AttributeMap | undefined> {
+  const params = {
+    TableName: userTable,
+    IndexName: "email-index",
+    KeyConditionExpression: "email = :email",
+    ExpressionAttributeValues: {
+      ":email": email,
+    },
+  };
+
+  try {
+    const response = await dynamodb.query(params).promise();
+    return response.Items && response.Items.length > 0 ? response.Items[0] : undefined;
+  } catch (error) {
+    console.error("There is an error getting user by email:", error);
     return undefined;
   }
 }
@@ -66,11 +88,17 @@ export const register = async (userInfo: User): Promise<APIGatewayProxyResult> =
     });
   }
 
-  const dynamoUser = await getUser(userName);
-  console.info(dynamoUser?.userName)
-  if (dynamoUser && dynamoUser.userName) {
+  const existingUserByUserName = await getUserByUserName(userName);
+  if (existingUserByUserName) {
     return buildResponse(401, {
       message: "User name already exists in our database. Please choose a different user name",
+    });
+  }
+
+  const existingUserByEmail = await getUserByEmail(email);
+  if (existingUserByEmail) {
+    return buildResponse(401, {
+      message: "Email already exists in our database. Please choose a different email",
     });
   }
 
