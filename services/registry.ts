@@ -35,6 +35,7 @@ async function getUserByUserName(userName: string): Promise<AWS.DynamoDB.Documen
 
   try {
     const response = await dynamodb.query(params).promise();
+    console.info(response)
     return response.Items && response.Items.length > 0 ? response.Items[0] : undefined;
   } catch (error) {
     console.error("There is an error getting user by userName:", error);
@@ -89,6 +90,7 @@ export const register = async (userInfo: User): Promise<APIGatewayProxyResult> =
   }
 
   const existingUserByUserName = await getUserByUserName(userName);
+   console.log(existingUserByUserName)
   if (existingUserByUserName) {
     return buildResponse(401, {
       message: "User name already exists in our database. Please choose a different user name",
@@ -96,6 +98,7 @@ export const register = async (userInfo: User): Promise<APIGatewayProxyResult> =
   }
 
   const existingUserByEmail = await getUserByEmail(email);
+ 
   if (existingUserByEmail) {
     return buildResponse(401, {
       message: "Email already exists in our database. Please choose a different email",
