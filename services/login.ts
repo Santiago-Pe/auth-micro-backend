@@ -21,9 +21,35 @@ interface User {
   password: string;
 }
 
+// Function to get all keys from DynamoDB
+async function getAllKeys(): Promise<DocumentClient.AttributeMap[] | undefined> {
+  const params: DocumentClient.ScanInput = {
+    TableName: userTable,
+    ProjectionExpression: "userId, userName, email", // Ajusta esto según las claves de tu tabla
+  };
+
+  try {
+    const allKeys: DocumentClient.AttributeMap[] = [];
+    let items;
+    do {
+      items = await dynamodb.scan(params).promise();
+      if (items.Items) {
+        allKeys.push(...items.Items);
+      }
+      params.ExclusiveStartKey = items.LastEvaluatedKey;
+    } while (typeof items.LastEvaluatedKey !== "undefined");
+
+    console.info('All keys:', allKeys);
+    return allKeys;
+  } catch (error) {
+    console.error("There is an error scanning the table:", error);
+    return undefined;
+  }
+}
+
 // Function to get a user from DynamoDB
 async function getUser(userName: string): Promise<DocumentClient.AttributeMap | undefined> {
-  const params = {
+  const params: DocumentClient.QueryInput = {
     TableName: userTable,
     IndexName: "userName-index",
     KeyConditionExpression: "userName = :userName",
@@ -34,7 +60,7 @@ async function getUser(userName: string): Promise<DocumentClient.AttributeMap | 
 
   try {
     const response = await dynamodb.query(params).promise();
-    console.info('USER_NAME from getUserByUserName()',response)
+    console.info('USER_NAME from getUserByUserName()', response)
     return response.Items && response.Items.length > 0 ? response.Items[0] : undefined;
   } catch (error) {
     console.error("There is an error getting user by userName:", error);
@@ -52,7 +78,12 @@ export const login = async (user: User): Promise<APIGatewayProxyResult> => {
     });
   }
 
-  const dynamoUser = await getUser(userName);
+  const allKeys = await getAllKeys();
+  if (!allKeys) {
+    return buildResponse(500, { message: "Internal server error" });
+  }
+
+  const dynamoUser = allKeys.find(item => item.userName === userName);
   if (!dynamoUser || !dynamoUser.userName) {
     return buildResponse(403, { message: "User does not exist" });
   }
