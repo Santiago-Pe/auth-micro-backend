@@ -25,16 +25,19 @@ interface User {
 async function getUser(userName: string): Promise<DocumentClient.AttributeMap | undefined> {
   const params = {
     TableName: userTable,
-    Key: {
-      userName: userName,
+    IndexName: "userName-index",
+    KeyConditionExpression: "userName = :userName",
+    ExpressionAttributeValues: {
+      ":userName": userName,
     },
   };
 
   try {
-    const response = await dynamodb.get(params).promise();
-    return response.Item;
+    const response = await dynamodb.query(params).promise();
+    console.info('USER_NAME from getUserByUserName()',response)
+    return response.Items && response.Items.length > 0 ? response.Items[0] : undefined;
   } catch (error) {
-    console.error("There is an error getting user:", error);
+    console.error("There is an error getting user by userName:", error);
     return undefined;
   }
 }
