@@ -1,7 +1,7 @@
 name: deploy to lambda
 
 # Trigger the workflow on push events
-on: 
+on:
   push:
     branches: [main]
 
@@ -60,7 +60,7 @@ jobs:
         with:
           aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_region: us-east-2
+          aws_region: us-east-1
           function_name: login-backend
           zip_file: bundle.zip
         # This step uses the appleboy/lambda-action to deploy the bundle.zip file to AWS Lambda
