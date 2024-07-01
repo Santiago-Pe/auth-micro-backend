@@ -7,7 +7,7 @@ import { buildResponse } from '../utils/utils';
 
 // Configuring AWS SDK
 AWS.config.update({
-  region: "us-east-2",
+  region: "us-east-1",
 });
 
 // Creating a DynamoDB DocumentClient instance

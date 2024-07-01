@@ -8,7 +8,7 @@ import { generateToken } from '../utils/auth';
 
 // Configuring AWS SDK
 AWS.config.update({
-  region: "us-east-2",
+  region: "us-east-1",
 });
 
 // Creating a DynamoDB DocumentClient instance
@@ -74,30 +74,3 @@ export const login = async (user: User): Promise<APIGatewayProxyResult> => {
   return buildResponse(200, response);
 };
 
-/*
-async function getAllKeys(): Promise<DocumentClient.AttributeMap[] | undefined> {
-  const params: DocumentClient.ScanInput = {
-    TableName: userTable,
-    ProjectionExpression: "userId, userName, email", // Ajusta esto según las claves de tu tabla
-  };
-
-  try {
-    const allKeys: DocumentClient.AttributeMap[] = [];
-    let items;
-    do {
-      items = await dynamodb.scan(params).promise();
-      if (items.Items) {
-        allKeys.push(...items.Items);
-      }
-      params.ExclusiveStartKey = items.LastEvaluatedKey;
-    } while (typeof items.LastEvaluatedKey !== "undefined");
-
-    console.info('All keys:', allKeys);
-    return allKeys;
-  } catch (error) {
-    console.error("There is an error scanning the table:", error);
-    return undefined;
-  }
-}
-
-*/
